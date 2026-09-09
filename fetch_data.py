@@ -44,21 +44,95 @@ SCHULDEN = {
     "broertje": 3600,
 }
 
-# Vaste DeGiro-ijkpunten (werkelijk gemeten vermogen op meetmomenten).
-# Gebruikt als sanity-check tegen de TSLA-proxy curve, en voor de
-# "totaal ingelegd vermogen" reeks. Vul aan met je DeGiro-cijfers.
+# Vaste DeGiro-ijkpunten (werkelijk gemeten portefeuillewaarde op meetmomenten,
+# rechtstreeks uit de DEGIRO jaaroverzichten 2018-2025). Gebruikt als
+# sanity-check tegen de TSLA-proxy curve: bij elk ijkpunt moet de richting
+# van de TSLA-proxy overeenkomen met de richting van de werkelijke waarde.
+# NB: dit is de bruto DEGIRO-portefeuillewaarde (excl. schulden/overige
+# rekeningen), dus dit is NIET hetzelfde als "nettovermogen" elders in het
+# dashboard — puur voor de TSLA-proxy-sanity-check en de ingelegd-vermogenreeks.
 DEGIRO_CHECKPOINTS = [
-    # {"date": "2025-01-01", "net_worth_eur": None, "ingelegd_eur": None},
-    # {"date": "2026-01-01", "net_worth_eur": None, "ingelegd_eur": None},
+    {"date": "2018-01-01", "portfolio_eur": 0.00},
+    {"date": "2018-12-31", "portfolio_eur": 0.00},
+    {"date": "2019-12-31", "portfolio_eur": 1457.26},
+    {"date": "2020-12-31", "portfolio_eur": 18928.72},
+    {"date": "2021-01-01", "portfolio_eur": 18921.22},
+    {"date": "2021-12-31", "portfolio_eur": 46012.36},
+    {"date": "2022-12-31", "portfolio_eur": 21741.66},
+    {"date": "2023-12-31", "portfolio_eur": 53023.30},
+    {"date": "2024-12-31", "portfolio_eur": 86968.10},
+    {"date": "2025-01-01", "portfolio_eur": 86968.10},
+    {"date": "2025-12-31", "portfolio_eur": 94898.95},
+]
+
+# Jaarlijkse stortingen/opnames (uit de flatex-jaarverslagen bij elk
+# DEGIRO jaaroverzicht) — voor de "totaal ingelegd vermogen" reeks,
+# los van de TSLA-proxy-curve.
+DEGIRO_DEPOSITS = [
+    {"year": 2021, "deposits_eur": 10150.00, "withdrawals_eur": 2.02},
+    {"year": 2022, "deposits_eur": 13499.00, "withdrawals_eur": 1451.31},
+    {"year": 2023, "deposits_eur": 10954.05, "withdrawals_eur": 2072.90},
+    {"year": 2024, "deposits_eur": 1165.09, "withdrawals_eur": 3727.04},
+    {"year": 2025, "deposits_eur": 9039.43, "withdrawals_eur": 0.00},
+]
+
+# Netto jaarrendement na kosten en lasten, uit de DEGIRO "Jaarlijks Kosten-
+# en Lastenoverzicht" documenten. Waar een jaar in meerdere overzichten
+# terugkomt met een ander cijfer (2021 is hier bekend van), is gekozen voor
+# het cijfer uit het overzicht van dat jaar zelf — dichter bij de bron dan
+# een latere herberekening. Gebruik dit voor rendement-per-jaar weergaven;
+# NIET om de portfolio-waarde zelf te reconstrueren (zie DEGIRO_CHECKPOINTS
+# daarvoor).
+DEGIRO_NET_RETURN_BY_YEAR = [
+    {"year": 2018, "net_return_eur": 0.00},
+    {"year": 2019, "net_return_eur": 27.26},
+    {"year": 2020, "net_return_eur": 8209.36},
+    {"year": 2021, "net_return_eur": 27091.15},  # bron: 2021-overzicht (zie discrepantie-notitie hieronder)
+    {"year": 2022, "net_return_eur": -36318.40},
+    {"year": 2023, "net_return_eur": 22400.49},
+    {"year": 2024, "net_return_eur": 36506.75},
+]
+
+# Bekende discrepantie tussen DEGIRO-documenten, expliciet vastgelegd zodat
+# hij niet onopgemerkt verdwijnt: het 2024-kostenoverzicht herberekent het
+# netto rendement van 2021 op €16.943,17, terwijl het 2021-, 2022- en
+# 2023-overzicht daar onderling consistent €27.091,15 voor aanhouden (bruto
+# rendement 2021 is in alle documenten gelijk: €27.284,25). Gekozen is voor
+# het oorspronkelijke jaar-overzicht als bron van waarheid.
+KNOWN_DATA_DISCREPANCIES = [
+    {
+        "field": "netto rendement 2021",
+        "value_used": 27091.15,
+        "conflicting_value": 16943.17,
+        "conflicting_source": "kosten-en-lastenoverzicht 2024",
+        "note": "2021/2022/2023-overzicht zijn onderling consistent op 27091.15; "
+                "2024-overzicht herberekent dit jaar afwijkend. Bruto rendement "
+                "(27284.25) is in alle documenten wel gelijk.",
+    },
+    {
+        "field": "portefeuillewaarde 31-12-2020",
+        "value_used": 18928.72,
+        "conflicting_value": 18921.21,
+        "conflicting_source": "kosten-en-lastenoverzicht 2020",
+        "note": "Verschil ~7.50 EUR, waarschijnlijk timing/afrondingsverschil "
+                "tussen twee losse DEGIRO-rapportagemomenten op dezelfde dag.",
+    },
 ]
 
 # TSLA-proxy referentiepunt: aantal TSLA-aandelen gehouden per datum,
 # zodat de vermogenscurve TSLA-koers * aantal_aandelen volgt i.p.v.
-# losse DeGiro-transacties. Vul aan met historische aantallen als dat
-# aantal is veranderd door de tijd heen.
+# losse DeGiro-transacties. Uit dezelfde jaaroverzichten.
 TSLA_SHARE_HISTORY = [
-    # {"date": "2025-01-01", "shares": 250},
-    {"date": datetime.date.today().isoformat(), "shares": 250},
+    {"date": "2018-01-01", "shares": 0},
+    {"date": "2019-12-31", "shares": 0},
+    {"date": "2020-12-31", "shares": 30},
+    {"date": "2021-12-31", "shares": 50},
+    {"date": "2022-12-31", "shares": 185},
+    {"date": "2023-12-31", "shares": 234},
+    {"date": "2024-12-31", "shares": 245},
+    {"date": "2025-01-01", "shares": 245},
+    {"date": "2025-12-31", "shares": 243},
+    {"date": datetime.date.today().isoformat(), "shares": 259},
 ]
 
 # ---------------------------------------------------------------------------
@@ -90,14 +164,37 @@ def get_crypto_prices(ids):
     return r.json()
 
 
-def get_tsla_history(start="2024-06-01"):
-    """Voor de wealth-over-time grafiek: TSLA slotkoersen door de tijd."""
-    tk = yf.Ticker("TSLA")
+def get_weekly_history(ticker, start="2018-01-01"):
+    """Wekelijkse slotkoersen door de tijd, voor grafieken/benchmarks."""
+    tk = yf.Ticker(ticker)
     hist = tk.history(start=start, interval="1wk")
     return [
         {"date": idx.strftime("%Y-%m-%d"), "close": round(float(row["Close"]), 2)}
         for idx, row in hist.iterrows()
     ]
+
+
+def build_wealth_curve(tsla_hist, tsla_share_history):
+    """
+    Bouwt de vermogens-proxy-curve: op elk punt in tsla_hist, gebruik het
+    aantal TSLA-aandelen dat op dat moment gold (volgens TSLA_SHARE_HISTORY)
+    en vermenigvuldig met de TSLA-slotkoers van die week.
+    """
+    if not tsla_share_history:
+        return []
+    sh_sorted = sorted(tsla_share_history, key=lambda x: x["date"])
+    curve = []
+    for point in tsla_hist:
+        d = point["date"]
+        shares = sh_sorted[0]["shares"]
+        for sh in sh_sorted:
+            if sh["date"] <= d:
+                shares = sh["shares"]
+            else:
+                break
+        curve.append({"date": d, "tsla_close": point["close"], "shares": shares,
+                       "proxy_value_usd": round(point["close"] * shares, 2)})
+    return curve
 
 
 # ---------------------------------------------------------------------------
@@ -163,7 +260,23 @@ def main():
     margin_eur = MARGIN_USD / eurusd
     margin_monthly_cost_eur = (MARGIN_USD * MARGIN_RATE / 12) / eurusd
 
-    tsla_hist = get_tsla_history()
+    tsla_hist = get_weekly_history("TSLA", start="2018-01-01")
+    wealth_curve = build_wealth_curve(tsla_hist, TSLA_SHARE_HISTORY)
+
+    # Benchmarks: AEX (^AEX) en S&P500 (^GSPC), genormaliseerd t.o.v. hun
+    # eigen startwaarde zodat ze naast de TSLA-proxy-curve te vergelijken zijn.
+    benchmarks = {}
+    for label, ticker in [("aex", "^AEX"), ("sp500", "^GSPC")]:
+        try:
+            hist = get_weekly_history(ticker, start="2018-01-01")
+            if hist:
+                base = hist[0]["close"]
+                benchmarks[label] = [
+                    {"date": p["date"], "close": p["close"], "indexed": round(p["close"] / base * 100, 2)}
+                    for p in hist
+                ]
+        except Exception as e:
+            print(f"WAARSCHUWING: benchmark {label} kon niet worden opgehaald: {e}", file=sys.stderr)
 
     data = {
         "generated_at": datetime.datetime.utcnow().isoformat() + "Z",
@@ -174,8 +287,13 @@ def main():
         "margin_monthly_cost_eur": round(margin_monthly_cost_eur, 2),
         "schulden": SCHULDEN,
         "degiro_checkpoints": DEGIRO_CHECKPOINTS,
+        "degiro_deposits": DEGIRO_DEPOSITS,
+        "degiro_net_return_by_year": DEGIRO_NET_RETURN_BY_YEAR,
+        "known_data_discrepancies": KNOWN_DATA_DISCREPANCIES,
         "tsla_share_history": TSLA_SHARE_HISTORY,
         "tsla_price_history": tsla_hist,
+        "wealth_curve": wealth_curve,
+        "benchmarks": benchmarks,
     }
 
     with open("data.json", "w", encoding="utf-8") as f:
