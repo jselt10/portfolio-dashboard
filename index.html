@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portfolio Dashboard</title>
+<style>
+  :root{--font-sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;--font-mono:'SF Mono',Consolas,monospace}
+  body{margin:0;background:#0B0C0B;display:flex;justify-content:center;padding:24px 12px}
+  .pf{font-family:var(--font-sans);background:#0B0C0B;border-radius:16px;padding:20px;color:#EDEDEB;max-width:900px;width:100%}
+  .pf-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media(max-width:820px){.pf-grid{grid-template-columns:1fr}}
+  .card{background:#141614;border:.5px solid #232624;border-radius:14px;padding:18px}
+  .card-title{font-size:15px;font-weight:600;color:#F5F5F3;margin-bottom:14px}
+  .kicker{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#7C817B;margin-bottom:6px}
+  .big{font-size:34px;font-weight:600;font-family:var(--font-mono);letter-spacing:-1px;color:#fff;line-height:1.1}
+  .sub{font-size:12px;color:#7C817B;margin-top:4px}
+  .stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}
+  .stat{background:#1B1E1B;border:.5px solid #262A26;border-radius:10px;padding:12px 14px}
+  .stat-l{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#7C817B;margin-bottom:5px}
+  .stat-v{font-size:19px;font-weight:600;font-family:var(--font-mono)}
+  .green{color:#4ADE80}.red{color:#F87171}.blue{color:#60A5FA}.amber{color:#FBBF24}
+  .pill{display:inline-flex;align-items:center;gap:5px;font-size:11px;padding:4px 11px;border-radius:99px;border:.5px solid #1F4D2E;color:#4ADE80;background:rgba(74,222,128,.07);margin-top:14px}
+  .tabs{display:flex;gap:3px;background:#1B1E1B;border-radius:9px;padding:3px;margin-bottom:14px;flex-wrap:wrap}
+  .tab{flex:1;min-width:52px;text-align:center;font-size:11px;padding:6px 4px;border-radius:7px;cursor:pointer;color:#8B908A;border:none;background:none;font-family:inherit;transition:.15s}
+  .tab:hover{color:#D4D6D2}
+  .tab.on{background:#2C312C;color:#fff;font-weight:600}
+  .row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:.5px solid #1E211E}
+  .row:last-child{border-bottom:none}
+  .row-l{display:flex;align-items:center;gap:9px;min-width:0}
+  .dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+  .nm{font-size:13px;color:#EDEDEB;font-weight:500}
+  .tk{font-size:10px;color:#6E736D;font-family:var(--font-mono);margin-left:3px}
+  .meta{font-size:10px;color:#6E736D;margin-top:2px}
+  .val{font-size:13px;font-family:var(--font-mono);color:#fff;font-weight:500;text-align:right}
+  .pnl{font-size:11px;font-weight:600;margin-top:2px;text-align:right}
+  .bar{height:9px;background:#1B1E1B;border-radius:99px;overflow:hidden;display:flex;margin-top:12px}
+  .foot{display:flex;justify-content:space-between;align-items:center;border-top:.5px solid #232624;margin-top:12px;padding-top:12px}
+  .foot-l{font-size:12px;color:#8B908A}
+  .foot-v{font-size:15px;font-family:var(--font-mono);font-weight:600}
+  .note{font-size:11px;color:#6E736D;line-height:1.5;margin-top:12px}
+  .tick{display:flex;gap:16px;flex-wrap:wrap;padding-bottom:14px;margin-bottom:16px;border-bottom:.5px solid #1E211E}
+  .tick-i{font-size:11px;color:#8B908A}
+  .tick-i b{color:#EDEDEB;font-weight:600;letter-spacing:.04em}
+  .split{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  @media(max-width:600px){.split{grid-template-columns:1fr}}
+  .dn-wrap{display:flex;flex-direction:column;align-items:center;gap:12px}
+  .dn-head{display:flex;justify-content:space-between;align-items:baseline;width:100%}
+  .dn-t{font-size:12px;font-weight:600;letter-spacing:.02em}
+  .lg-row{display:flex;justify-content:space-between;align-items:center;padding:4px 6px;font-size:11px;width:100%;cursor:default;border-radius:5px;transition:background .12s}
+  .lg-row.hi{background:#1E211E}
+  canvas{cursor:pointer}
+  .dtip{position:absolute;background:#1E211E;border:.5px solid #343934;border-radius:9px;padding:9px 11px;pointer-events:none;opacity:0;transition:opacity .12s;white-space:nowrap;z-index:20;box-shadow:0 4px 16px rgba(0,0,0,.5)}
+  .dtip-n{font-size:12px;font-weight:600;color:#fff;margin-bottom:5px}
+  .dtip-r{display:flex;justify-content:space-between;gap:14px;font-size:11px;padding:1px 0}
+  .dtip-k{color:#8B908A}
+  .dtip-v{font-family:var(--font-mono);color:#EDEDEB}
+  .updated{text-align:center;font-size:11px;color:#4B4F4B;margin-top:16px}
+  .err{background:#2A1414;border:1px solid #5C2626;color:#F87171;padding:12px 16px;border-radius:10px;font-size:13px;margin-bottom:16px}
+</style>
+</head>
+<body>
+
+<div class="pf">
+  <div id="errBox"></div>
+  <div class="tick" id="tick"></div>
+
+  <div class="pf-grid">
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <div class="card">
+        <div class="kicker">Totale waarde</div>
+        <div class="big" id="totVal">—</div>
+        <div class="sub" id="totSub">—</div>
+        <div class="stat-grid">
+          <div class="stat"><div class="stat-l">Totale winst</div><div class="stat-v" id="sWinst">—</div></div>
+          <div class="stat"><div class="stat-l">Rendement</div><div class="stat-v" id="sRend">—</div></div>
+          <div class="stat"><div class="stat-l">Aandelen</div><div class="stat-v blue" id="sAand">—</div></div>
+          <div class="stat"><div class="stat-l">Crypto</div><div class="stat-v amber" id="sCrypto">—</div></div>
+        </div>
+        <span class="pill" id="pill">● —</span>
+      </div>
+
+      <div class="card" style="position:relative">
+        <div class="card-title">Verdeling</div>
+        <div class="dtip" id="dtip"><div class="dtip-n" id="dtip-n">—</div><div id="dtip-body"></div></div>
+        <div class="split">
+          <div class="dn-wrap">
+            <div class="dn-head"><span class="dn-t blue">Aandelenportefeuille</span></div>
+            <div style="position:relative">
+              <canvas id="dnA" width="150" height="150" style="width:150px;height:150px"></canvas>
+              <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none">
+                <div style="font-size:15px;font-family:var(--font-mono);font-weight:600;color:#fff" id="aTot">—</div>
+                <div style="font-size:8px;letter-spacing:.08em;text-transform:uppercase;color:#6E736D" id="aCnt">—</div>
+              </div>
+            </div>
+            <div style="width:100%" id="lgA"></div>
+          </div>
+
+          <div class="dn-wrap">
+            <div class="dn-head"><span class="dn-t amber">Cryptoportefeuille</span></div>
+            <div style="position:relative">
+              <canvas id="dnC" width="150" height="150" style="width:150px;height:150px"></canvas>
+              <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none">
+                <div style="font-size:15px;font-family:var(--font-mono);font-weight:600;color:#fff" id="cTot">—</div>
+                <div style="font-size:8px;letter-spacing:.08em;text-transform:uppercase;color:#6E736D" id="cCnt">—</div>
+              </div>
+            </div>
+            <div style="width:100%" id="lgC"></div>
+          </div>
+        </div>
+        <div class="note">Elke cirkel is op zichzelf 100%. Beweeg over een segment of legendaregel voor details.</div>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <div class="card">
+        <div class="card-title">Posities</div>
+        <div class="tabs" id="posTabs">
+          <button class="tab on" data-v="all">Alles</button>
+          <button class="tab" data-v="stock">Aandelen</button>
+          <button class="tab" data-v="crypto">Crypto</button>
+          <button class="tab" data-v="win">Winst</button>
+          <button class="tab" data-v="los">Verlies</button>
+        </div>
+        <div id="posList"></div>
+        <div class="bar" id="posBar"></div>
+        <div class="foot"><span class="foot-l" id="footL">—</span><span class="foot-v" id="footV">—</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Schulden & nettovermogen</div>
+        <div id="schuldenList"></div>
+        <div class="bar" id="schuldBar"></div>
+        <div class="foot"><span class="foot-l">Totaal schulden</span><span class="foot-v red" id="totSchuld">—</span></div>
+        <div style="background:#1B1E1B;border-radius:10px;padding:14px;margin-top:14px">
+          <div class="stat-l">Nettovermogen</div>
+          <div style="font-size:26px;font-weight:600;font-family:var(--font-mono);color:#4ADE80;margin-top:3px" id="nvVal">—</div>
+          <div class="sub" id="nvSub">—</div>
+          <div class="bar" id="nvBar"></div>
+          <div style="display:flex;justify-content:space-between;margin-top:7px;font-size:10px;color:#6E736D"><span id="nvA">—</span><span id="nvB">—</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="updated" id="updated">—</div>
+</div>
+
+<script>
+const f=n=>'€'+Math.round(n).toLocaleString('nl-NL');
+const fD=n=>'€'+n.toLocaleString('nl-NL',{minimumFractionDigits:2,maximumFractionDigits:2});
+const fP=n=>(n>0?'+':'')+n.toFixed(1)+'%';
+const fQ=(t,q)=>['SOL','BTC','ETH'].includes(t)?q:q.toLocaleString('nl-NL');
+
+let pos=[], view='all';
+
+async function loadData(){
+  try{
+    const res=await fetch('data.json?t='+Date.now());
+    if(!res.ok) throw new Error('data.json niet gevonden (status '+res.status+')');
+    const data=await res.json();
+    render(data);
+  }catch(err){
+    document.getElementById('errBox').innerHTML=`<div class="err">Kon data.json niet laden: ${err.message}. Draait de GitHub Action al minstens één keer?</div>`;
+  }
+}
+
+function render(data){
+  pos=data.positions.map(p=>({...p, kp: p.gak!=null ? (p.q*p.gak)/data.eurusd : null})).sort((a,b)=>b.w-a.w);
+
+  const stocks=pos.filter(p=>p.type==='stock');
+  const cryptos=pos.filter(p=>p.type==='crypto');
+  const totStock=stocks.reduce((s,p)=>s+p.w,0);
+  const totCrypto=cryptos.reduce((s,p)=>s+p.w,0);
+  const totPort=totStock+totCrypto+data.cash_eur-(data.margin_eur||0);
+  const totPnl=pos.filter(p=>p.pnl!=null).reduce((s,p)=>s+p.pnl,0);
+  const totKp=pos.filter(p=>p.kp!=null).reduce((s,p)=>s+p.kp,0);
+  const totPct=totKp?(totPnl/totKp)*100:0;
+
+  document.getElementById('totVal').textContent=fD(totPort);
+  document.getElementById('totSub').textContent='waarvan '+f(data.cash_eur)+' cash · '+pos.length+' posities'+(data.margin_eur?' · '+f(data.margin_eur)+' margin':'');
+  const sw=document.getElementById('sWinst');
+  sw.textContent=(totPnl>=0?'+':'')+f(totPnl);sw.className='stat-v '+(totPnl>=0?'green':'red');
+  const sr=document.getElementById('sRend');
+  sr.textContent=fP(totPct);sr.className='stat-v '+(totPct>=0?'green':'red');
+  document.getElementById('sAand').textContent=f(totStock);
+  document.getElementById('sCrypto').textContent=f(totCrypto);
+
+  const genDate=new Date(data.generated_at);
+  document.getElementById('pill').textContent='● Koersen '+genDate.toLocaleDateString('nl-NL',{day:'numeric',month:'long',year:'numeric'})+' · EUR/USD '+data.eurusd.toFixed(3);
+  document.getElementById('updated').textContent='Laatst bijgewerkt: '+genDate.toLocaleString('nl-NL');
+
+  const tickerSet=[...stocks,...cryptos].filter(p=>p.pct!=null).slice(0,6);
+  document.getElementById('tick').innerHTML=tickerSet.map(p=>`<span class="tick-i"><b>${p.t}</b> <span class="${p.pct>=0?'green':'red'}">${fP(p.pct)}</span></span>`).join('');
+
+  // schulden
+  const sch=data.schulden||{};
+  const schEntries=Object.entries(sch);
+  const totSchuld=schEntries.reduce((s,[,v])=>s+v,0);
+  const schColors=['#DC2626','#F87171','#FBBF24','#FB923C','#FCA5A5'];
+  document.getElementById('schuldenList').innerHTML=schEntries.map(([k,v],i)=>`
+    <div class="row"><span class="row-l"><span class="dot" style="background:${schColors[i%schColors.length]}"></span><span class="nm">${k.charAt(0).toUpperCase()+k.slice(1)}</span></span><span class="val">${f(v)}</span></div>`).join('');
+  document.getElementById('schuldBar').innerHTML=schEntries.map(([k,v],i)=>`<div style="width:${(v/totSchuld*100).toFixed(1)}%;background:${schColors[i%schColors.length]}"></div>`).join('');
+  document.getElementById('totSchuld').textContent=f(totSchuld);
+
+  const netto=totPort-totSchuld, pE=Math.round(totPort/(totPort+totSchuld)*100);
+  document.getElementById('nvVal').textContent=f(netto);
+  document.getElementById('nvSub').textContent=f(totPort)+' portfolio − '+f(totSchuld)+' schulden';
+  document.getElementById('nvBar').innerHTML=`<div style="width:${pE}%;background:#4ADE80"></div><div style="width:${100-pE}%;background:#F87171"></div>`;
+  document.getElementById('nvA').textContent=pE+'% eigen vermogen';
+  document.getElementById('nvB').textContent=(100-pE)+'% schulden';
+
+  document.querySelectorAll('#posTabs .tab').forEach(btn=>{
+    btn.onclick=()=>{view=btn.dataset.v;document.querySelectorAll('#posTabs .tab').forEach(t=>t.classList.remove('on'));btn.classList.add('on');renderPos();};
+  });
+
+  renderPos();
+  donut('dnA','lgA',stocks,totStock,'aCnt','aTot',stocks.length+' aandelen');
+  donut('dnC','lgC',cryptos,totCrypto,'cCnt','cTot',cryptos.length+' coins');
+}
+
+function renderPos(){
+  const stocks=pos.filter(p=>p.type==='stock');
+  const cryptos=pos.filter(p=>p.type==='crypto');
+  let list=pos;
+  if(view==='stock')list=stocks;
+  if(view==='crypto')list=cryptos;
+  if(view==='win')list=pos.filter(p=>p.pnl!=null&&p.pnl>0);
+  if(view==='los')list=pos.filter(p=>p.pnl!=null&&p.pnl<0);
+  const sum=list.reduce((s,p)=>s+p.w,0);
+  document.getElementById('posList').innerHTML=list.length?list.map(p=>`
+    <div class="row">
+      <span class="row-l"><span class="dot" style="background:${p.c}"></span>
+        <div><div class="nm">${p.n}<span class="tk">${p.t}</span>${p.stake?'<span style="font-size:9px;color:#4ADE80;margin-left:5px">◈ staking</span>':''}</div>
+        <div class="meta">${fQ(p.t,p.q)}× · GAK ${p.gak!=null?'$'+p.gak.toLocaleString('nl-NL'):'—'} · nu $${p.k.toLocaleString('nl-NL')}</div></div>
+      </span>
+      <div><div class="val">${f(p.w)}</div><div class="pnl ${p.pnl==null?'':p.pnl>=0?'green':'red'}" style="${p.pnl==null?'color:#6E736D':''}">${p.pnl==null?'—':(p.pnl>=0?'+':'')+f(p.pnl)+' ('+fP(p.pct)+')'}</div></div>
+    </div>`).join(''):'<div style="padding:16px 0;font-size:12px;color:#6E736D;text-align:center">Geen posities</div>';
+  document.getElementById('posBar').innerHTML=list.map(p=>`<div style="width:${(p.w/sum*100).toFixed(1)}%;background:${p.c}"></div>`).join('');
+  document.getElementById('footL').textContent=list.length+' posities';
+  document.getElementById('footV').textContent=f(sum);
+}
+
+const tip=document.getElementById('dtip');
+function showTip(p,total,x,y,card){
+  document.getElementById('dtip-n').innerHTML=`<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${p.c};margin-right:6px"></span>${p.n} <span style="color:#6E736D;font-family:var(--font-mono);font-size:10px">${p.t}</span>`;
+  const rows=[
+    ['Aandeel','<b style="color:#fff">'+(p.w/total*100).toFixed(1)+'%</b>'],
+    ['Waarde',f(p.w)],
+    ['Aantal',fQ(p.t,p.q)],
+    ['GAK',p.gak!=null?'$'+p.gak.toLocaleString('nl-NL'):'—'],
+    ['Koers','$'+p.k.toLocaleString('nl-NL')],
+    ['Resultaat',p.pnl==null?'—':`<span style="color:${p.pnl>=0?'#4ADE80':'#F87171'}">${(p.pnl>=0?'+':'')+f(p.pnl)} (${fP(p.pct)})</span>`],
+  ];
+  document.getElementById('dtip-body').innerHTML=rows.map(r=>`<div class="dtip-r"><span class="dtip-k">${r[0]}</span><span class="dtip-v">${r[1]}</span></div>`).join('');
+  const cr=card.getBoundingClientRect();
+  tip.style.opacity='1';
+  tip.style.left=Math.min(Math.max(x-cr.left+14,8), cr.width-175)+'px';
+  tip.style.top=(y-cr.top-10)+'px';
+}
+function hideTip(){tip.style.opacity='0';}
+
+function donut(canvasId,legendId,items,total,cntId,totId,cntLabel){
+  const cv=document.getElementById(canvasId),ctx=cv.getContext('2d');
+  const dpr=window.devicePixelRatio||1;
+  cv.width=150*dpr;cv.height=150*dpr;ctx.scale(dpr,dpr);
+  const segs=[];
+  function draw(hoverIdx){
+    ctx.clearRect(0,0,150,150);
+    let a=-Math.PI/2;
+    items.forEach((d,i)=>{
+      const sl=(d.w/total)*Math.PI*2;
+      const isH=i===hoverIdx;
+      ctx.beginPath();
+      ctx.arc(75,75,isH?60:57,a,a+sl-.025);
+      ctx.lineWidth=isH?22:18;
+      ctx.strokeStyle=d.c;
+      ctx.globalAlpha=hoverIdx==null||isH?1:.3;
+      ctx.stroke();
+      ctx.globalAlpha=1;
+      segs[i]={s:a,e:a+sl};
+      a+=sl;
+    });
+  }
+  draw(null);
+  document.getElementById(totId).textContent=f(total);
+  document.getElementById(cntId).textContent=cntLabel;
+  const lg=document.getElementById(legendId);
+  lg.innerHTML=items.map((d,i)=>`
+    <div class="lg-row" data-i="${i}">
+      <span style="display:flex;align-items:center;gap:6px;color:#C8CCC6"><span class="dot" style="background:${d.c}"></span>${d.t}</span>
+      <span style="font-family:var(--font-mono);color:#EDEDEB">${(d.w/total*100).toFixed(1)}%</span>
+    </div>`).join('');
+
+  const card=cv.closest('.card');
+  cv.addEventListener('mousemove',e=>{
+    const r=cv.getBoundingClientRect();
+    const mx=e.clientX-r.left-75, my=e.clientY-r.top-75;
+    const dist=Math.sqrt(mx*mx+my*my);
+    if(dist<44||dist>72){draw(null);hideTip();lg.querySelectorAll('.lg-row').forEach(x=>x.classList.remove('hi'));return;}
+    let ang=Math.atan2(my,mx); if(ang< -Math.PI/2) ang+=Math.PI*2;
+    const idx=segs.findIndex(s=>ang>=s.s&&ang<s.e);
+    if(idx>=0){
+      draw(idx);
+      showTip(items[idx],total,e.clientX,e.clientY,card);
+      lg.querySelectorAll('.lg-row').forEach(x=>x.classList.toggle('hi',+x.dataset.i===idx));
+    }
+  });
+  cv.addEventListener('mouseleave',()=>{draw(null);hideTip();lg.querySelectorAll('.lg-row').forEach(x=>x.classList.remove('hi'));});
+  lg.querySelectorAll('.lg-row').forEach(rw=>{
+    rw.addEventListener('mouseenter',()=>{const i=+rw.dataset.i;draw(i);rw.classList.add('hi');
+      const rr=rw.getBoundingClientRect();showTip(items[i],total,rr.left+40,rr.top,card);});
+    rw.addEventListener('mouseleave',()=>{draw(null);hideTip();rw.classList.remove('hi');});
+  });
+}
+
+loadData();
+</script>
+</body>
+</html>
