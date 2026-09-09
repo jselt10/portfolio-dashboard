@@ -1,1 +1,36 @@
+name: Update portfolio data
 
+on:
+  schedule:
+    # Draait elke dag om 06:00 UTC (~08:00 NL-tijd zomer, 07:00 winter)
+    - cron: "0 6 * * *"
+  workflow_dispatch: {}  # laat je ook handmatig op de knop "Run workflow" drukken op GitHub
+
+permissions:
+  contents: write
+
+jobs:
+  update-data:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install yfinance requests
+
+      - name: Fetch prices and build data.json
+        run: python fetch_data.py
+
+      - name: Commit and push if changed
+        run: |
+          git config user.name "portfolio-bot"
+          git config user.email "actions@github.com"
+          git add data.json
+          git diff --quiet --cached || git commit -m "Dagelijkse koersupdate $(date -u +%Y-%m-%d)"
+          git push
