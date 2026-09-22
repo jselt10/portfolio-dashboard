@@ -31,10 +31,10 @@ CRYPTO = [
     {"id": "solana", "t": "SOL", "q": 45.5, "gak": 90, "c": "#9945FF", "n": "Solana", "stake": 6.47},
     {"id": "ripple", "t": "XRP", "q": 1150, "gak": 1.50, "c": "#CBD5E1", "n": "XRP"},
     {"id": "hedera-hashgraph", "t": "HBAR", "q": 2205, "gak": None, "c": "#00E5A0", "n": "Hedera"},
-    {"id": "ethereum", "t": "ETH", "q": 0.012, "gak": 2900, "c": "#627EEA", "n": "Ethereum"},
+    {"id": "ethereum", "t": "ETH", "q": 0.12, "gak": 2900, "c": "#627EEA", "n": "Ethereum"},
 ]
 
-CASH_USD = 1000
+CASH_USD = 1200
 MARGIN_USD = 0
 MARGIN_RATE = 0.07  # jaarlijks
 
